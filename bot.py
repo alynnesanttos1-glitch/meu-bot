@@ -79,7 +79,7 @@ def chat():
 
         # 💳 PAGAMENTO
         elif any(p in msg for p in ["pix", "pagamento", "finalizar"]):
-            resposta = "Pra finalizar rapidinho 😊 chama no WhatsApp: " + whatsapp
+            resposta = "Para finalizar rapidinho, você pode terminar o pagamento aqui no site. Adicione seus produtos no carrinho e finalize a compra! "
 
         # 📞 WHATSAPP
         elif any(p in msg for p in ["whatsapp", "zap", "contato"]):
