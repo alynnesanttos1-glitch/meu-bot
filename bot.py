@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # 🔥 LIBERA CONEXÃO COM O SITE
 
 @app.route("/")
 def home():
@@ -15,14 +17,14 @@ def chat():
         whatsapp = "https://wa.me/5521979027387"
 
         # 👋 SAUDAÇÃO
-        if any(p in msg for p in ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite"]):
-            resposta = "Oi! 😊 Seja bem-vinda! Trabalhamos com materiais para laços e artesanato. O que você procura?"
+        if any(p in msg for p in ["oi", "olá", "ola", "opa", "bom dia", "boa tarde", "boa noite"]):
+            resposta = "Oi! 😊 Seja bem-vinda! Trabalhamos com fitas, colas e materiais para laços. O que você procura?"
 
         # 🛍️ PRODUTOS
         elif any(p in msg for p in ["produtos", "o que vende", "tem o que"]):
             resposta = "Temos fitas (gorgurão, cetim, estampadas), colas, acessórios e tudo para artesanato 😍"
 
-        # 🎀 FITAS DETALHADO
+        # 🎀 FITAS
         elif "fita" in msg:
             if "5" in msg:
                 resposta = "Temos fita número 5 😊 perfeita pra laços médios!"
@@ -30,10 +32,10 @@ def chat():
                 resposta = "Temos fita número 9 😍 ideal pra laços grandes!"
             elif "2" in msg:
                 resposta = "Temos fita número 2 😊 ótima pra acabamento!"
-            elif "38mm" in msg:
-                resposta = "Temos fita 38mm 😍 muito usada pra laços!"
+            elif "38" in msg:
+                resposta = "Temos fita 38mm 😍 muito usada!"
             else:
-                resposta = "Temos várias fitas 😍 gorgurão, cetim e estampadas! Quer algum tamanho específico?"
+                resposta = "Temos várias fitas 😍 gorgurão, cetim e estampadas! Quer algum tamanho?"
 
         # 🎨 CORES
         elif any(p in msg for p in ["cor", "cores"]):
@@ -41,7 +43,7 @@ def chat():
 
         # 🧴 COLAS
         elif "cola quente" in msg:
-            resposta = "Temos cola quente 🔥 muito usada em artesanato!"
+            resposta = "Temos cola quente 🔥 muito usada no artesanato!"
         elif "cola silicone" in msg:
             resposta = "Temos cola de silicone 😊 ótima pra acabamento!"
         elif "cola" in msg:
@@ -72,22 +74,25 @@ def chat():
             resposta = "Funcionamos em horário comercial 😊"
 
         # 🛒 COMPRA
-        elif any(p in msg for p in ["quero", "comprar"]):
-            resposta = "Perfeito 😍 me fala o que você quer que eu te ajudo!"
+        elif any(p in msg for p in ["quero", "comprar", "pedido"]):
+            resposta = "Perfeito 😍 me fala o que você quer!"
 
-        # 💳 FINALIZAÇÃO
+        # 💳 PAGAMENTO
         elif any(p in msg for p in ["pix", "pagamento", "finalizar"]):
             resposta = "Pra finalizar 😊 me chama no WhatsApp: " + whatsapp
 
-        # ❌ FALLBACK INTELIGENTE
+        # 📞 WHATSAPP
+        elif any(p in msg for p in ["whatsapp", "zap", "contato"]):
+            resposta = "Pode falar com a gente aqui 😊 " + whatsapp
+
+        # ❌ FALLBACK
         else:
-            resposta = "Hmm 🤔 não entendi muito bem. Você pode explicar melhor? Posso te ajudar com fitas, colas e artesanato 😊"
+            resposta = "Hmm 🤔 não entendi muito bem. Posso te ajudar com fitas, colas e artesanato 😊"
 
         return jsonify({"resposta": resposta})
 
-    except:
-        return jsonify({"resposta": "Erro 😅 tenta novamente"})
-        
+    except Exception as e:
+        return jsonify({"resposta": "Erro interno 😅 tenta novamente"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
