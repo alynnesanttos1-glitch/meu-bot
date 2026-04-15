@@ -19,7 +19,7 @@ def home():
     async function enviar() {
         let msg = document.getElementById('msg').value;
 
-        let res = await fetch('/chat', {
+        let res = await fetch('https://meu-bot-9brl.onrender.com/chat', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({mensagem: msg})
