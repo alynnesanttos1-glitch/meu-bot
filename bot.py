@@ -1,25 +1,30 @@
+from flask import Flask, request, jsonify
 from openai import OpenAI
-
 import os
+
+app = Flask(__name__)
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def responder_cliente(mensagem):
+@app.route("/")
+def home():
+    return "Bot online 😈"
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.json
+    mensagem = data.get("mensagem")
+
     resposta = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Você é um vendedor simpático de uma loja de materiais para fazer laços. Sempre sugira produtos e seja educado."},
+            {"role": "system", "content": "Você é um vendedor simpático de uma loja de laços."},
             {"role": "user", "content": mensagem}
         ]
     )
-    
-    return resposta.choices[0].message.content
 
+    return jsonify({
+        "resposta": resposta.choices[0].message.content
+    })
 
-# simulação de cliente
-while True:
-    msg = input("Olá! no que posso ajudar? ")
-    if msg.lower() == "sair":
-        break
-    
-    resposta = responder_cliente(msg)
-    print("Bot:", resposta)
+app.run(host="0.0.0.0", port=5000)
