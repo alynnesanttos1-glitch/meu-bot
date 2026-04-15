@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
+from openai import OpenAI
 
 app = Flask(__name__)
+
+client = OpenAI()
 
 WHATSAPP = "https://wa.me/5521979027387"
 
@@ -32,42 +35,36 @@ def home():
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json
-    msg = data.get("mensagem", "").lower()
+    msg = data.get("mensagem", "")
 
-    # 👋 saudação
-    if any(p in msg for p in ["oi", "olá", "opa", "bom dia", "boa tarde", "boa noite"]):
-        resposta = "👋 Olá! Bem-vindo! Posso te ajudar com preços, produtos ou pedidos 😊"
+    resposta = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": f"""
+Você é um atendente humano, simpático e profissional de uma loja.
 
-    # 💰 preço
-    elif any(p in msg for p in ["preço", "valor", "quanto custa"]):
-        resposta = "💰 Me fala qual produto você quer que eu te passo o preço 😉"
+REGRAS:
+- Responda de forma natural, como uma pessoa real
+- Seja educado e prestativo
+- Tente ajudar o cliente e entender o que ele quer
+- Se perceber intenção de compra, incentive suavemente
 
-    # 🛍️ compra (AQUI ENTRA O WHATSAPP)
-    elif any(p in msg for p in ["comprar", "quero", "pedido", "pegar", "adquirir"]):
-        resposta = f"""🛒 Perfeito! Vou te ajudar com isso 😈<br><br>
-👉 Clique aqui para falar direto no WhatsApp:<br>
-<a href="{WHATSAPP}" target="_blank">📲 Falar no WhatsApp</a>
+IMPORTANTE:
+- Se o cliente quiser comprar, responda e inclua esse link:
+{WHATSAPP}
+
+- Nunca diga que é um robô
+- Seja direto e amigável
 """
+            },
+            {"role": "user", "content": msg}
+        ]
+    )
 
-    # 🚚 entrega
-    elif any(p in msg for p in ["entrega", "frete", "envio"]):
-        resposta = "🚚 Fazemos entregas! Me fala seu CEP 😊"
+    texto = resposta.choices[0].message.content
 
-    # 📦 produtos
-    elif any(p in msg for p in ["produto", "tem", "estoque"]):
-        resposta = "📦 Temos vários produtos! Quer ver os mais vendidos? 😈"
-
-    # fallback
-    else:
-        resposta = f"""🤖 Não entendi muito bem 😅<br><br>
-Posso te ajudar com:<br>
-✔️ preços<br>
-✔️ produtos<br>
-✔️ pedidos<br><br>
-Ou você pode falar direto no WhatsApp 👇<br>
-<a href="{WHATSAPP}" target="_blank">📲 Clique aqui</a>
-"""
-
-    return jsonify({"resposta": resposta})
+    return jsonify({"resposta": texto})
 
 app.run(host="0.0.0.0", port=10000)
