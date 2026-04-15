@@ -2,6 +2,10 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return "Bot online 😈"
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -11,81 +15,86 @@ def chat():
 
     # 👋 SAUDAÇÃO
     if any(p in msg for p in ["oi", "olá", "bom dia", "boa tarde", "boa noite"]):
-        resposta = "Oi! 😊 Seja bem-vinda! Trabalho com materiais para laços e artesanato. O que você está procurando hoje?"
+        resposta = "Oi! 😊 Seja bem-vinda! Trabalhamos com materiais para laços e artesanato. O que você está procurando?"
 
-    # 🛍️ O QUE VENDE
-    elif any(p in msg for p in ["o que você vende", "tem o que", "trabalha com o que"]):
+    # 🛍️ PRODUTOS
+    elif any(p in msg for p in ["o que vende", "tem o que", "trabalha com o que"]):
         resposta = "Temos fitas (gorgurão, cetim, estampadas), colas, acessórios para laços e vários materiais de artesanato 😍"
 
     # 🎀 FITAS
     elif "fita" in msg:
-        resposta = "Temos vários tipos de fita 😊 gorgurão, cetim, estampadas... você procura algum número específico?"
+        resposta = "Temos vários tipos de fitas 😊 gorgurão, cetim, estampadas... você quer algum número específico?"
 
     elif any(p in msg for p in ["fita 5", "número 5", "n5"]):
-        resposta = "Temos sim fita número 5 😊 é uma das mais usadas pra laços médios! Quer saber as cores disponíveis?"
+        resposta = "Temos sim fita número 5 😊 muito usada para laços médios!"
 
     elif any(p in msg for p in ["fita 9", "número 9", "n9"]):
-        resposta = "Temos fita número 9 também 😍 ótima pra laços grandes e chamativos!"
+        resposta = "Temos fita número 9 também 😍 ótima pra laços grandes!"
 
-    elif "fita 2" in msg or "número 2" in msg:
-        resposta = "Temos fita número 2 sim 😊 perfeita pra detalhes menores!"
+    elif any(p in msg for p in ["fita 2", "número 2", "n2"]):
+        resposta = "Temos fita número 2 sim 😊 perfeita para detalhes!"
 
     # 🎨 CORES
-    elif "cores" in msg:
-        resposta = "Temos muitas cores lindas 😍 lisas e estampadas! Se quiser te mostro algumas opções 😊"
+    elif "cor" in msg or "cores" in msg:
+        resposta = "Temos muitas cores lindas 😍 lisas e estampadas!"
 
     # 🧴 COLAS
-    elif "cola" in msg:
-        resposta = "Temos cola de silicone, cola quente e outras específicas pra artesanato 😊 qual você precisa?"
-
     elif "cola quente" in msg:
-        resposta = "Temos sim cola quente 🔥 muito usada pra laços e artesanato!"
+        resposta = "Temos cola quente sim 🔥 perfeita para artesanato!"
 
     elif "cola silicone" in msg:
-        resposta = "Temos cola de silicone também 😊 ótima pra acabamento mais delicado!"
+        resposta = "Temos cola de silicone 😊 ótima para acabamento!"
+
+    elif "cola" in msg:
+        resposta = "Temos vários tipos de cola 😊 qual você precisa?"
 
     # 🎀 LAÇOS
     elif "laço" in msg:
-        resposta = "Você faz laços? 😍 Temos tudo que você precisa pra montar, desde fitas até acessórios!"
+        resposta = "Temos tudo para laços 😍 fitas, acessórios e mais!"
 
     # 🧵 MATERIAIS
-    elif any(p in msg for p in ["material", "acessórios", "itens", "produtos"]):
-        resposta = "Temos vários materiais pra artesanato 😊 me fala o que você precisa que eu te ajudo!"
+    elif any(p in msg for p in ["material", "acessório", "produto"]):
+        resposta = "Temos vários materiais de artesanato 😊 me fala o que você precisa!"
 
-    # 💰 PREÇOS (SEM mandar direto pro zap)
+    # 💰 PREÇO
     elif any(p in msg for p in ["preço", "valor", "quanto custa"]):
-        resposta = "Os valores variam dependendo do produto 😊 me fala qual item você quer que eu te passo o valor!"
+        resposta = "Os valores variam 😊 me fala qual produto você quer que te informo!"
 
     # 📦 ESTOQUE
-    elif any(p in msg for p in ["tem disponível", "tem estoque", "tem isso"]):
-        resposta = "Temos sim 😊 mas me fala exatamente qual produto pra eu confirmar certinho!"
+    elif any(p in msg for p in ["tem disponível", "estoque"]):
+        resposta = "Temos sim 😊 me diga qual produto pra confirmar certinho!"
 
     # 🚚 ENTREGA
-    elif any(p in msg for p in ["entrega", "envio", "frete"]):
-        resposta = "Fazemos entrega sim 🚚 o valor depende da região! Quer me informar seu bairro?"
+    elif any(p in msg for p in ["entrega", "frete", "envio"]):
+        resposta = "Fazemos entrega 🚚 me diga seu bairro para calcular!"
 
-    # 📍 LOCAL
-    elif any(p in msg for p in ["onde fica", "endereço", "localização"]):
-        resposta = "Somos do Rio de Janeiro 😊 se quiser te passo o endereço certinho!"
+    # 📍 LOCALIZAÇÃO
+    elif any(p in msg for p in ["onde fica", "endereço"]):
+        resposta = "Somos do Rio de Janeiro 😊 posso te passar o endereço certinho!"
 
     # ⏰ HORÁRIO
-    elif any(p in msg for p in ["horário", "funcionamento", "abre que horas"]):
-        resposta = "Funcionamos em horário comercial 😊 se quiser te confirmo direitinho!"
+    elif any(p in msg for p in ["horário", "funcionamento"]):
+        resposta = "Funcionamos em horário comercial 😊"
 
     # 🛒 COMPRA
-    elif any(p in msg for p in ["quero comprar", "como comprar", "vou querer"]):
-        resposta = "Perfeito! 😍 Me fala o que você quer que eu já te ajudo com o pedido!"
+    elif any(p in msg for p in ["quero comprar", "vou querer", "como comprar"]):
+        resposta = "Perfeito 😍 me diga o que você quer que eu te ajudo a montar o pedido!"
 
-    # ❗ FINALIZAÇÃO → AQUI SIM manda pro zap
-    elif any(p in msg for p in ["fechar pedido", "finalizar", "pagamento", "pix"]):
-        resposta = "Perfeito 😊 pra finalizar certinho e te passar pagamento, me chama no WhatsApp: " + whatsapp
+    # 💳 FINALIZAÇÃO
+    elif any(p in msg for p in ["pix", "pagamento", "finalizar", "fechar pedido"]):
+        resposta = "Perfeito 😊 para finalizar te passo tudo no WhatsApp: " + whatsapp
 
-    # 🤔 INDECISO
-    elif any(p in msg for p in ["não sei", "tô na dúvida"]):
-        resposta = "Sem problema 😊 me fala o que você quer fazer que eu te ajudo a escolher!"
+    # 🤔 DÚVIDA
+    elif any(p in msg for p in ["não sei", "dúvida"]):
+        resposta = "Sem problema 😊 me explica melhor que eu te ajudo!"
 
-    # 💬 FALLBACK INTELIGENTE
+    # 💬 FALLBACK
     else:
-        resposta = "Hmm 🤔 não entendi muito bem, mas quero te ajudar! Me explica melhor o que você precisa 😊"
+        resposta = "Não entendi muito bem 😅 pode explicar melhor?"
 
     return jsonify({"resposta": resposta})
+
+
+# 🚀 ESSENCIAL PRA RENDER
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
