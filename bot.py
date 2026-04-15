@@ -46,6 +46,23 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
+    try:
+        data = request.get_json()
+        msg = data.get("mensagem", "")
+
+        resposta = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {"role": "user", "content": msg}
+            ]
+        )
+
+        texto = resposta.choices[0].message.content
+
+        return jsonify({"resposta": texto})
+
+    except Exception as e:
+        return jsonify({"resposta": str(e)})
     data = request.get_json()
     msg = data.get("mensagem", "")
 
