@@ -11,60 +11,76 @@ WHATSAPP = "https://wa.me/5521979027387"
 def home():
     return """
     <h2>Atendimento 🤖</h2>
-    <input id='msg' placeholder='Digite sua mensagem'>
-    <button onclick='enviar()'>Enviar</button>
-    <p id='resposta'></p>
+
+    <input id="msg" placeholder="Digite sua mensagem" style="width:200px;">
+    <button onclick="enviar()">Enviar</button>
+
+    <p id="resposta"></p>
 
     <script>
     async function enviar() {
-        let msg = document.getElementById('msg').value;
+        let msg = document.getElementById("msg").value;
 
-        let res = await fetch('https://meu-bot-9brl.onrender.com/chat', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({mensagem: msg})
-        });
+        if (!msg) return;
 
-        let data = await res.json();
+        try {
+            let res = await fetch("https://meu-bot-9brl.onrender.com/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ mensagem: msg })
+            });
 
-        document.getElementById('resposta').innerHTML = data.resposta;
+            let data = await res.json();
+
+            document.getElementById("resposta").innerText = data.resposta;
+
+        } catch (erro) {
+            document.getElementById("resposta").innerText = "Erro ao conectar com o servidor 😢";
+            console.error(erro);
+        }
     }
     </script>
     """
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.json
+    data = request.get_json()
     msg = data.get("mensagem", "")
 
-    resposta = client.chat.completions.create(
-        model="gpt-4.1-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": f"""
-Você é um atendente humano, simpático e profissional de uma loja.
+    try:
+        resposta = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"""
+Você é um atendente humano, simpático e profissional.
 
 REGRAS:
-- Responda de forma natural, como uma pessoa real
-- Seja educado e prestativo
-- Tente ajudar o cliente e entender o que ele quer
-- Se perceber intenção de compra, incentive suavemente
+- Fale como uma pessoa real
+- Seja educado e direto
+- Ajude o cliente
+- Incentive a compra de forma leve
 
 IMPORTANTE:
-- Se o cliente quiser comprar, responda e inclua esse link:
+- Se o cliente quiser comprar ou demonstrar interesse, envie esse link:
 {WHATSAPP}
 
 - Nunca diga que é um robô
-- Seja direto e amigável
 """
-            },
-            {"role": "user", "content": msg}
-        ]
-    )
+                },
+                {"role": "user", "content": msg}
+            ]
+        )
 
-    texto = resposta.choices[0].message.content
+        texto = resposta.choices[0].message.content
 
-    return jsonify({"resposta": texto})
+        return jsonify({"resposta": texto})
+
+    except Exception as e:
+        return jsonify({"resposta": "Deu um erro aqui 😢 tenta de novo"})
+
 
 app.run(host="0.0.0.0", port=10000)
