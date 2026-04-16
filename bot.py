@@ -12,7 +12,7 @@ def escolher(lista):
 
 @app.route("/")
 def home():
-    return "Bot online 😈"
+    return "Bot online 😈🔥 CRITICAL HIT"
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -23,148 +23,151 @@ def chat():
     whatsapp = "https://wa.me/5521979027387"
     site = "https://fazendoarte.com"
 
-    estado = usuarios.get(user_id, "inicio")
+    estado = usuarios.get(user_id, {"etapa": "inicio", "interesse": None})
+
+    etapa = estado["etapa"]
 
     # 👋 INÍCIO
-    if estado == "inicio":
-        usuarios[user_id] = "perfil"
+    if etapa == "inicio":
+        usuarios[user_id] = {"etapa": "perfil", "interesse": None}
         return jsonify({
             "resposta": escolher([
-                "Oi! 😊 Seja bem-vinda! Você trabalha com laços ou tá começando agora?",
-                "Olá 😍 você já faz laços ou quer começar agora?",
-                "Oi oi 😊 você já trabalha com artesanato ou tá iniciando?"
+                "Oi! 😊 Seja bem-vinda! Você já trabalha com laços ou tá começando agora?",
+                "Olá 😍 você já faz laços ou quer começar? Tenho kits que ajudam MUITO 😉",
+                "Oi oi 😊 você trabalha com artesanato ou tá iniciando agora?"
             ])
         })
 
     # 👩 PERFIL
-    elif estado == "perfil":
+    elif etapa == "perfil":
         if "começ" in msg or "iniciante" in msg:
-            usuarios[user_id] = "kit"
+            usuarios[user_id] = {"etapa": "kit", "interesse": "iniciante"}
             return jsonify({
                 "resposta": escolher([
-                    "Que legal 😍 quer que eu te recomende um kit completo pra começar?",
-                    "Perfeito 😊 posso te indicar um kit pronto com tudo que precisa!",
-                    "Top 😍 quer uma sugestão de kit pra iniciantes?"
+                    "Perfeito 😍 quem começa com kit aprende MUITO mais rápido! Quer que eu te recomende um kit pronto?",
+                    "Boa escolha 😍 tenho kits completos que facilitam demais! Quer ver?",
+                    "Top 😊 posso te indicar um kit que já vem com tudo pra começar! Quer?"
                 ])
             })
         else:
-            usuarios[user_id] = "tipo_fita"
+            usuarios[user_id] = {"etapa": "tipo_fita", "interesse": "profissional"}
             return jsonify({
                 "resposta": escolher([
-                    "Perfeito 😍 você usa mais fita número 5 ou 9?",
-                    "Show 😊 trabalha mais com fita nº5 ou nº9?",
-                    "Boa 😍 qual tamanho você usa mais: 5 ou 9?"
+                    "Que top 😍 você usa mais fita nº5 ou nº9? As duas estão vendendo MUITO!",
+                    "Perfeito 😊 você trabalha mais com fita 5 ou 9? Posso te indicar as mais procuradas!",
+                    "Boa 😍 qual você usa mais: nº5 ou nº9?"
                 ])
             })
 
-    # 🎁 KIT
-    elif estado == "kit":
+    # 🎁 KIT (COM PRESSÃO LEVE)
+    elif etapa == "kit":
         if "sim" in msg:
-            usuarios[user_id] = "finalizar"
+            usuarios[user_id]["etapa"] = "finalizar"
             return jsonify({
                 "resposta": escolher([
-                    "Recomendo um kit com fita nº5 + cola quente + acessórios 😍 quer finalizar a compra?",
-                    "Kit perfeito seria fita + cola + básicos 😊 quer fechar o pedido agora?",
-                    "Tenho um kit ótimo pra você começar 😍 quer finalizar já?"
+                    "Perfeito 😍 esse kit é o que mais ajuda iniciantes e tá saindo MUITO! Quer que eu já deixe pronto pra você finalizar?",
+                    "Ótima escolha 😊 esse kit facilita MUITO no começo! Quer finalizar agora?",
+                    "Esse kit é campeão de vendas 😍 quer garantir o seu agora?"
                 ])
             })
         else:
-            usuarios[user_id] = "tipo_fita"
+            usuarios[user_id]["etapa"] = "tipo_fita"
             return jsonify({
                 "resposta": escolher([
-                    "Sem problema 😊 então quer ver fitas separadas?",
-                    "Beleza 😄 vamos ver fitas então! Você prefere nº5 ou nº9?",
-                    "Tranquilo 😎 vamos escolher fitas! Qual tamanho você quer?"
+                    "Tranquilo 😊 então vamos nas fitas! Você prefere nº5 ou nº9?",
+                    "Beleza 😄 vamos ver fitas então! Qual você usa mais?",
+                    "Sem problema 😎 fita nº5 ou nº9?"
                 ])
             })
 
     # 🎀 TIPO DE FITA
-    elif estado == "tipo_fita":
+    elif etapa == "tipo_fita":
         if "5" in msg:
-            usuarios[user_id] = "recomendar_fita"
+            usuarios[user_id]["etapa"] = "recomendar"
+            usuarios[user_id]["interesse"] = "fita5"
             return jsonify({
                 "resposta": escolher([
-                    "Fita nº5 é ótima 😍 quer que eu te recomende algumas que estão vendendo muito?",
-                    "Boa escolha 😊 quer sugestões de fita nº5?",
-                    "Top 😍 tenho várias nº5 lindas! Quer recomendações?"
+                    "Boa 😍 fita nº5 vende MUITO! Quer que eu te mostre as mais procuradas?",
+                    "Excelente escolha 😊 nº5 é sucesso! Quer recomendações?",
+                    "Top 😍 tenho umas nº5 lindas que saem rápido! Quer ver?"
                 ])
             })
         elif "9" in msg:
-            usuarios[user_id] = "recomendar_fita"
+            usuarios[user_id]["etapa"] = "recomendar"
+            usuarios[user_id]["interesse"] = "fita9"
             return jsonify({
                 "resposta": escolher([
-                    "Fita nº9 é perfeita 😍 quer ver recomendações?",
-                    "Excelente 😊 nº9 vende muito! Quer sugestões?",
-                    "Boa 😍 quer ideias de fita nº9?"
+                    "Perfeito 😍 nº9 é ótimo pra laços grandes! Quer recomendações?",
+                    "Boa 😊 fita nº9 tá bombando! Quer sugestões?",
+                    "Top 😍 quer ver as nº9 mais vendidas?"
                 ])
             })
         else:
-            return jsonify({
-                "resposta": "Você prefere fita nº5 ou nº9? 😊"
-            })
+            return jsonify({"resposta": "Você prefere fita nº5 ou nº9? 😊"})
 
-    # 💡 RECOMENDAÇÃO
-    elif estado == "recomendar_fita":
+    # 💡 RECOMENDAÇÃO INTELIGENTE
+    elif etapa == "recomendar":
         if "sim" in msg:
-            usuarios[user_id] = "finalizar"
+            usuarios[user_id]["etapa"] = "combo"
             return jsonify({
                 "resposta": escolher([
-                    "Recomendo gorgurão candy + estampadas 😍 quer finalizar?",
-                    "Sugiro fitas lisas + temáticas 😊 quer fechar o pedido?",
-                    "Essas estão vendendo muito 😍 quer finalizar agora?"
+                    "Recomendo gorgurão + estampadas 😍 combina muito! Quer que eu sugira um combo com cola também?",
+                    "Essas estão vendendo MUITO 😍 quer aproveitar e ver um combo completo?",
+                    "Top 😊 posso montar um kit com isso + cola pra você economizar! Quer?"
                 ])
             })
         else:
-            usuarios[user_id] = "outros"
+            usuarios[user_id]["etapa"] = "outros"
             return jsonify({
                 "resposta": escolher([
-                    "Beleza 😊 quer ver cola ou outros materiais?",
-                    "Tranquilo 😄 posso te mostrar colas ou acessórios!",
-                    "Sem problema 😎 quer ver outros produtos?"
+                    "Sem problema 😊 quer ver colas ou acessórios?",
+                    "Tranquilo 😄 posso te mostrar outros materiais!",
+                    "Beleza 😎 quer ver mais opções?"
                 ])
             })
 
-    # 🧴 OUTROS
-    elif estado == "outros":
-        if "cola" in msg:
-            usuarios[user_id] = "finalizar"
+    # 💥 COMBO (CRITICAL HIT)
+    elif etapa == "combo":
+        if "sim" in msg:
+            usuarios[user_id]["etapa"] = "finalizar"
             return jsonify({
                 "resposta": escolher([
-                    "Temos cola quente ótima 🔥 quer adicionar e finalizar?",
-                    "Cola de qualidade faz diferença 😍 quer incluir no pedido?",
-                    "Recomendo cola boa 😊 quer fechar o pedido?"
+                    "Perfeito 😍 esse combo tá saindo MUITO e compensa demais! Quer finalizar agora?",
+                    "Boa escolha 😊 você já sai com tudo pronto! Quer fechar o pedido?",
+                    "Esse combo é sucesso total 😍 quer garantir o seu agora?"
                 ])
             })
         else:
+            usuarios[user_id]["etapa"] = "finalizar"
             return jsonify({
                 "resposta": escolher([
-                    "Posso te ajudar com fitas, colas ou kits 😍",
-                    "Quer ver mais produtos? 😊",
-                    "Me fala o que você precisa 😄"
+                    "Sem problema 😊 mas recomendo pegar pelo menos fita + cola 😉 quer finalizar?",
+                    "Tranquilo 😄 quer fechar com o que escolheu?",
+                    "Beleza 😎 quer finalizar sua compra?"
                 ])
             })
 
-    # 🛒 FINAL
-    elif estado == "finalizar":
+    # 🛒 FINALIZAÇÃO COM PRESSÃO LEVE
+    elif etapa == "finalizar":
         if "sim" in msg or "quero" in msg:
-            usuarios[user_id] = "fim"
+            usuarios[user_id]["etapa"] = "fim"
             return jsonify({
                 "resposta": escolher([
-                    f"Perfeito 😍 finalize pelo site: {site} 🛒 ou chama no Whats: {whatsapp}",
-                    f"Top 😊 pode finalizar aqui: {site} ou falar comigo no Whats: {whatsapp}",
-                    f"Compra fácil 😍 finalize no site: {site} ou no Whats: {whatsapp}"
+                    f"Perfeito 😍 finalize aqui: {site} 🛒\nSe precisar, chama no Whats: {whatsapp}",
+                    f"Boa 😍 pode finalizar direto no site: {site} 🛒\nOu falar comigo no Whats: {whatsapp}",
+                    f"Top 😊 finaliza rapidinho aqui: {site} 🛒\nQualquer dúvida: {whatsapp}"
                 ])
             })
         else:
             return jsonify({
                 "resposta": escolher([
-                    "Sem problema 😊 quer ver mais produtos?",
-                    "Tranquilo 😄 posso te mostrar outras opções!",
-                    "Beleza 😎 quer continuar olhando?"
+                    "Quer ver mais alguma coisa antes? 😊",
+                    "Posso te ajudar com mais produtos 😍",
+                    "Quer que eu te sugira mais alguma coisa?"
                 ])
             })
 
-    return jsonify({"resposta": "Não entendi 😅 quer ver fitas, colas ou kits?"})
+    return jsonify({"resposta": "Posso te ajudar com fitas, colas ou kits 😍"})
 
 
 if __name__ == "__main__":
