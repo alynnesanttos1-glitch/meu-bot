@@ -10,138 +10,148 @@ usuarios = {}
 def escolher(lista):
     return random.choice(lista)
 
-def tem(msg, lista):
-    return any(p in msg for p in lista)
+def normalizar(msg):
+    return msg.lower().strip()
 
-def tem_sim(msg):
-    return any(p in msg for p in ["sim", "quero", "claro", "pode", "ok", "quero sim", "ss"])
+def tem(msg, palavras):
+    return any(p in msg for p in palavras)
 
-def tem_nao(msg):
-    return any(p in msg for p in ["não", "nao", "depois", "agora não", "n"])
+SIM = ["sim", "quero", "claro", "pode", "ok", "ss", "s"]
+NAO = ["não", "nao", "n", "depois", "agora não"]
 
 @app.route("/")
 def home():
-    return "Bot 200% melhorado 🔥"
+    return "Bot profissional ON 🔥"
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.get_json()
-    msg = data.get("mensagem", "").lower()
-    user_id = data.get("user_id", request.remote_addr)
+    try:
+        data = request.get_json()
+        msg = normalizar(data.get("mensagem", ""))
+        user_id = data.get("user_id", request.remote_addr)
 
-    whatsapp = "https://wa.me/5521979027387"
+        whatsapp = "https://wa.me/5521979027387"
 
-    if user_id not in usuarios:
-        usuarios[user_id] = {
-            "etapa": "inicio",
-            "ultima_pergunta": None
-        }
+        if user_id not in usuarios:
+            usuarios[user_id] = {
+                "ultima_intencao": None,
+                "contexto": None
+            }
 
-    estado = usuarios[user_id]
+        estado = usuarios[user_id]
 
-    # 🔁 SAUDAÇÃO
-    if tem(msg, ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite"]):
-        estado["ultima_pergunta"] = "inicio"
-        return jsonify({"resposta": escolher([
-            "Oi 😊 quer ajuda pra escolher materiais ou kits?",
-            "Olá 😍 posso te recomendar produtos!",
-            "Oi oi 😊 tá procurando algo ou quer sugestões?"
-        ])})
-
-    # 🔎 PRODUTOS (AGORA MUITO MELHOR)
-    if tem(msg, ["fita", "n5", "nº5", "numero 5", "fita 5"]):
-        estado["ultima_pergunta"] = "produto"
-        return jsonify({"resposta": escolher([
-            "Sim 😊 temos fita nº5 sim! Quer sugestão de cores?",
-            "Temos sim 😍 fita nº5 é uma das mais usadas! Quer ver combinações?",
-            "Sim 😄 fita nº5 disponível! Quer que eu te recomende cores?"
-        ])})
-
-    if tem(msg, ["n9", "nº9", "numero 9", "fita 9"]):
-        estado["ultima_pergunta"] = "produto"
-        return jsonify({"resposta": escolher([
-            "Sim 😊 temos fita nº9! ótima pra laços grandes!",
-            "Temos sim 😍 nº9 vende muito!",
-            "Sim 😄 fita nº9 disponível! quer sugestões?"
-        ])})
-
-    if tem(msg, ["cola", "cola quente", "silicone"]):
-        estado["ultima_pergunta"] = "produto"
-        return jsonify({"resposta": escolher([
-            "Sim 😊 temos cola quente sim! ajuda MUITO no acabamento!",
-            "Temos sim 😍 cola é essencial!",
-            "Sim 😄 cola disponível! quer dica de uso?"
-        ])})
-
-    if tem(msg, ["acrílico", "nome acrílico", "nome personalizado"]):
-        estado["ultima_pergunta"] = "produto"
-        return jsonify({"resposta": escolher([
-            "Sim 😊 fazemos nome em acrílico sim! quer saber mais?",
-            "Temos sim 😍 nome acrílico personalizado!",
-            "Sim 😄 fazemos nomes em acrílico! quer detalhes?"
-        ])})
-
-    # 🔥 RECOMENDAÇÃO INTELIGENTE
-    if tem(msg, ["recomenda", "sugere", "o que comprar", "o que você indica"]):
-        estado["ultima_pergunta"] = "recomendacao"
-        return jsonify({"resposta": escolher([
-            "Posso te recomendar sim 😊 você tá começando?",
-            "Claro 😍 você quer algo básico ou completo?",
-            "Boa 😄 você já trabalha com isso ou tá começando?"
-        ])})
-
-    # 🧠 RESPOSTA INTELIGENTE PRA SIM
-    if tem_sim(msg):
-
-        if estado["ultima_pergunta"] == "produto":
+        # 🔁 SAUDAÇÃO
+        if tem(msg, ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite"]):
+            estado["ultima_intencao"] = "inicio"
             return jsonify({"resposta": escolher([
-                "Perfeito 😊 quer ajuda pra escolher cores ou quantidades?",
-                "Boa 😄 quer sugestão pra combinar melhor?",
-                "Top 😍 posso te ajudar a montar seu pedido!"
+                "Oi 😊 posso te ajudar a escolher produtos!",
+                "Olá 😍 quer ajuda com fitas, cola ou acrílico?",
+                "Oi oi 😄 tá procurando algo específico?"
             ])})
 
-        if estado["ultima_pergunta"] == "recomendacao":
-            estado["ultima_pergunta"] = "perfil"
+        # 🛍️ PRODUTOS
+        if tem(msg, ["fita", "n5", "nº5", "numero 5"]):
+            estado["ultima_intencao"] = "produto_fita5"
             return jsonify({"resposta": escolher([
-                "Você tá começando ou já vende? 😊",
-                "Você quer algo simples ou mais completo? 😄",
-                "Me fala se você é iniciante ou já trabalha com isso 😊"
+                "Sim 😊 temos fita nº5! Quer sugestões de cores?",
+                "Temos sim 😍 fita nº5 vende muito!",
+                "Sim 😄 fita nº5 disponível! quer ajuda pra escolher?"
             ])})
 
-        if estado["ultima_pergunta"] == "perfil":
+        if tem(msg, ["n9", "nº9", "numero 9"]):
+            estado["ultima_intencao"] = "produto_fita9"
             return jsonify({"resposta": escolher([
-                "Recomendo fita nº5 + cola + acessórios 😊",
-                "Kit básico é uma ótima escolha 😍",
-                "Você pode começar com fitas e cola 😄"
+                "Sim 😊 temos fita nº9!",
+                "Temos sim 😍 ótima pra laços grandes!",
+                "Sim 😄 fita nº9 disponível!"
             ])})
 
-    # ❌ RESPOSTA PRA NÃO
-    if tem_nao(msg):
+        if tem(msg, ["cola", "silicone"]):
+            estado["ultima_intencao"] = "produto_cola"
+            return jsonify({"resposta": escolher([
+                "Sim 😊 temos cola quente!",
+                "Temos sim 😍 cola é essencial!",
+                "Sim 😄 cola disponível!"
+            ])})
+
+        if tem(msg, ["acrílico", "nome acrílico", "personalizado"]):
+            estado["ultima_intencao"] = "produto_acrilico"
+            return jsonify({"resposta": escolher([
+                "Sim 😊 fazemos nomes em acrílico!",
+                "Temos sim 😍 personalizado!",
+                "Sim 😄 fazemos sob medida!"
+            ])})
+
+        # 🔥 RECOMENDAÇÃO
+        if tem(msg, ["recomenda", "sugere", "o que comprar", "indica"]):
+            estado["ultima_intencao"] = "recomendacao"
+            return jsonify({"resposta": escolher([
+                "Posso te recomendar 😊 você tá começando?",
+                "Claro 😄 quer algo simples ou completo?",
+                "Boa 😍 você já trabalha com isso?"
+            ])})
+
+        # ✅ SIM (INTELIGENTE)
+        if tem(msg, SIM):
+            if estado["ultima_intencao"] == "produto_fita5":
+                return jsonify({"resposta": escolher([
+                    "Temos várias cores lindas 😊 quer sugestão?",
+                    "Quer ajuda pra combinar cores? 😄",
+                    "Posso te indicar cores que vendem bem 😍"
+                ])})
+
+            if estado["ultima_intencao"] == "produto_cola":
+                return jsonify({"resposta": escolher([
+                    "Cola ajuda muito no acabamento 😊",
+                    "Boa escolha 😄 quer dica de uso?",
+                    "É essencial mesmo 😍"
+                ])})
+
+            if estado["ultima_intencao"] == "recomendacao":
+                estado["contexto"] = "perfil"
+                return jsonify({"resposta": escolher([
+                    "Você tá começando ou já vende? 😊",
+                    "Você quer algo básico ou completo? 😄",
+                    "Me fala seu nível pra eu te indicar melhor 😊"
+                ])})
+
+            if estado["contexto"] == "perfil":
+                return jsonify({"resposta": escolher([
+                    "Recomendo fita nº5 + cola + acessórios 😊",
+                    "Kit básico já resolve muita coisa 😍",
+                    "Começa com fitas e cola 😄"
+                ])})
+
+        # ❌ NÃO
+        if tem(msg, NAO):
+            return jsonify({"resposta": escolher([
+                "Sem problema 😊 posso te ajudar com outra coisa!",
+                "Tranquilo 😄 quer ver outro produto?",
+                "Beleza 😊 qualquer coisa estou aqui!"
+            ])})
+
+        # 🚚 ENTREGA
+        if tem(msg, ["entrega", "frete", "envio"]):
+            return jsonify({"resposta": escolher([
+                "Enviamos pra todo o Brasil 🇧🇷😊",
+                "Entrega nacional disponível 😄",
+                "Sim 😊 enviamos pra todo o país!"
+            ])})
+
+        # 📞 WHATS
+        if tem(msg, ["whatsapp", "contato"]):
+            return jsonify({"resposta": f"Pode chamar aqui 😊 {whatsapp}"})
+
+        # 🔚 FALLBACK
         return jsonify({"resposta": escolher([
-            "Sem problema 😊 posso te ajudar com outra coisa!",
-            "Tranquilo 😄 quer ver outro produto?",
-            "Beleza 😊 se precisar é só falar!"
+            "Posso te ajudar com produtos 😊",
+            "Quer sugestão ou tá procurando algo? 😄",
+            "Me fala o que você precisa 😊",
+            "Quer que eu te recomende algo? 😍"
         ])})
 
-    # 📦 ENTREGA
-    if tem(msg, ["entrega", "frete", "envio"]):
-        return jsonify({"resposta": escolher([
-            "Enviamos pra todo o Brasil 🇧🇷😊",
-            "Fazemos envio nacional 😄",
-            "Sim 😊 entregamos em todo o país!"
-        ])})
-
-    # 📞 WHATS
-    if tem(msg, ["whatsapp", "contato", "falar com alguém"]):
-        return jsonify({"resposta": f"Pode chamar aqui 😊 {whatsapp}"})
-
-    # 💬 FALLBACK MELHORADO
-    return jsonify({"resposta": escolher([
-        "Posso te ajudar com fitas, cola ou acrílico 😊",
-        "Quer recomendação ou tá procurando algo específico? 😄",
-        "Me fala o que você precisa 😊",
-        "Posso te sugerir produtos se quiser 😍"
-    ])})
+    except Exception as e:
+        return jsonify({"resposta": "Ops 😅 deu um erro aqui, pode tentar de novo?"})
 
 
 if __name__ == "__main__":
