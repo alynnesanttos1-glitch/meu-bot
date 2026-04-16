@@ -16,12 +16,20 @@ def limpar(msg):
 def tem(msg, palavras):
     return any(p in msg for p in palavras)
 
-SIM = ["sim", "quero", "claro", "pode", "ok", "ss", "s"]
-NAO = ["não", "nao", "n", "depois", "agora não"]
+SIM = ["sim", "quero", "claro", "pode", "ok", "ss", "s", "aham", "isso"]
+NAO = ["não", "nao", "n", "depois", "agora não", "nem"]
+
+# 🔥 PALAVRAS CHAVE MAIS COMPLETAS
+PALAVRAS_PRODUTOS = {
+    "fita5": ["fita 5", "n5", "nº5", "numero 5"],
+    "fita9": ["fita 9", "n9", "nº9", "numero 9"],
+    "cola": ["cola", "cola quente", "silicone"],
+    "acrilico": ["acrílico", "acrilico", "nome acrílico", "personalizado"],
+}
 
 @app.route("/")
 def home():
-    return "Bot inteligente rodando 🔥"
+    return "BOT 200%+ ONLINE 🔥"
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -32,66 +40,63 @@ def chat():
 
         whatsapp = "https://wa.me/5521979027387"
 
-        # cria usuário
         if user_id not in usuarios:
             usuarios[user_id] = {
                 "estado": "inicio",
-                "topico": None,
-                "esperando": None
+                "esperando": None,
+                "topico": None
             }
 
         user = usuarios[user_id]
 
         # 🔁 SAUDAÇÃO
-        if tem(msg, ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite"]):
-            user["estado"] = "inicio"
+        if tem(msg, ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite", "opa"]):
             user["esperando"] = "ajuda"
             return jsonify({"resposta": escolher([
-                "Oi 😊 posso te ajudar a escolher produtos!",
-                "Olá 😄 quer recomendação de materiais?",
+                "Oi 😊 posso te ajudar com materiais!",
+                "Olá 😄 quer ver produtos ou recomendações?",
                 "Oi oi 😍 tá procurando algo específico?"
             ])})
 
-        # 🛍️ PRODUTOS ESPECÍFICOS
-        if tem(msg, ["fita 5", "n5", "nº5", "numero 5"]):
-            user["topico"] = "fita5"
-            user["esperando"] = "quer_cores"
-            return jsonify({"resposta": escolher([
-                "Sim 😊 temos fita nº5! Quer sugestões de cores?",
-                "Temos sim 😍 fita nº5 é muito usada! Quer ideias?",
-                "Sim 😄 fita nº5 disponível! Quer combinações?"
-            ])})
+        # 🔎 DETECÇÃO DE PRODUTO
+        for produto, palavras in PALAVRAS_PRODUTOS.items():
+            if tem(msg, palavras):
+                user["topico"] = produto
 
-        if tem(msg, ["fita 9", "n9", "nº9"]):
-            user["topico"] = "fita9"
-            user["esperando"] = "sugestao"
-            return jsonify({"resposta": escolher([
-                "Sim 😊 temos fita nº9!",
-                "Temos sim 😍 ótima pra laços grandes!",
-                "Sim 😄 disponível! Quer sugestões?"
-            ])})
+                if produto == "fita5":
+                    user["esperando"] = "cores"
+                    return jsonify({"resposta": escolher([
+                        "Temos fita nº5 sim 😊 quer sugestão de cores?",
+                        "Sim 😍 fita nº5 disponível! quer combinações?",
+                        "Tem sim 😄 quer ajuda pra escolher cores?"
+                    ])})
 
-        if tem(msg, ["cola"]):
-            user["topico"] = "cola"
-            user["esperando"] = "dica"
-            return jsonify({"resposta": escolher([
-                "Sim 😊 temos cola quente! Quer dica de uso?",
-                "Temos sim 😍 essencial pra acabamento!",
-                "Sim 😄 cola disponível! Quer ajuda?"
-            ])})
+                if produto == "fita9":
+                    user["esperando"] = "sugestao"
+                    return jsonify({"resposta": escolher([
+                        "Sim 😊 fita nº9 disponível!",
+                        "Temos sim 😍 ótima pra laços grandes!",
+                        "Sim 😄 quer ideias pra usar?"
+                    ])})
 
-        if tem(msg, ["acrílico", "nome acrílico"]):
-            user["topico"] = "acrilico"
-            user["esperando"] = "detalhes"
-            return jsonify({"resposta": escolher([
-                "Sim 😊 fazemos nome em acrílico! Quer saber mais?",
-                "Temos sim 😍 personalizado!",
-                "Sim 😄 fazemos sob medida! Quer detalhes?"
-            ])})
+                if produto == "cola":
+                    user["esperando"] = "dica"
+                    return jsonify({"resposta": escolher([
+                        "Sim 😊 temos cola quente!",
+                        "Temos sim 😍 ajuda muito no acabamento!",
+                        "Sim 😄 quer dica de uso?"
+                    ])})
+
+                if produto == "acrilico":
+                    user["esperando"] = "detalhes"
+                    return jsonify({"resposta": escolher([
+                        "Sim 😊 fazemos nome em acrílico!",
+                        "Temos sim 😍 personalizado!",
+                        "Sim 😄 quer ver como funciona?"
+                    ])})
 
         # 🔥 RECOMENDAÇÃO
-        if tem(msg, ["recomenda", "sugere", "o que comprar"]):
-            user["estado"] = "recomendando"
+        if tem(msg, ["recomenda", "sugere", "indica", "o que comprar"]):
             user["esperando"] = "perfil"
             return jsonify({"resposta": escolher([
                 "Claro 😊 você tá começando?",
@@ -99,22 +104,21 @@ def chat():
                 "Boa 😍 você já trabalha com isso?"
             ])})
 
-        # ✅ RESPOSTA PRA SIM (INTELIGENTE MESMO)
+        # 🧠 SIM INTELIGENTE
         if tem(msg, SIM):
 
-            if user["esperando"] == "quer_cores":
-                user["esperando"] = None
+            if user["esperando"] == "cores":
                 return jsonify({"resposta": escolher([
                     "Rosa com branco vende muito 😍",
-                    "Dourado com nude fica lindo 😊",
+                    "Preto com dourado fica lindo 😊",
                     "Estampado + liso combina bastante 😄"
                 ])})
 
             if user["esperando"] == "dica":
                 return jsonify({"resposta": escolher([
-                    "Use cola em pouca quantidade pra não marcar 😊",
-                    "Dica: cola quente ajuda muito na durabilidade 😄",
-                    "Evite excesso pra não manchar 😍"
+                    "Use pouca cola pra não manchar 😊",
+                    "Cola quente ajuda na durabilidade 😄",
+                    "Evite excesso pra acabamento perfeito 😍"
                 ])})
 
             if user["esperando"] == "perfil":
@@ -122,20 +126,19 @@ def chat():
                 return jsonify({"resposta": escolher([
                     "Você é iniciante ou já vende? 😊",
                     "Quer algo simples ou mais completo? 😄",
-                    "Me fala seu nível pra indicar melhor 😊"
+                    "Me fala seu nível 😊"
                 ])})
 
             if user["esperando"] == "nivel":
                 return jsonify({"resposta": escolher([
-                    "Recomendo fita nº5 + cola + acessórios 😊",
-                    "Kit básico já resolve muita coisa 😍",
-                    "Começa com fitas e cola 😄"
+                    "Recomendo fita nº5 + cola 😊",
+                    "Kit básico é ótimo pra começar 😍",
+                    "Começa com fitas e acessórios 😄"
                 ])})
 
-            # fallback de SIM
             return jsonify({"resposta": escolher([
-                "Perfeito 😊 quer ajuda com mais algo?",
-                "Boa 😄 posso te ajudar em mais alguma coisa?",
+                "Perfeito 😊 quer mais alguma coisa?",
+                "Boa 😄 posso te ajudar em algo mais?",
                 "Top 😍 quer ver mais produtos?"
             ])})
 
@@ -143,12 +146,20 @@ def chat():
         if tem(msg, NAO):
             user["esperando"] = None
             return jsonify({"resposta": escolher([
-                "Sem problema 😊 posso te ajudar com outra coisa!",
-                "Tranquilo 😄 se precisar é só falar!",
-                "Beleza 😊 quer ver outro produto?"
+                "Sem problema 😊 posso ajudar com outra coisa!",
+                "Tranquilo 😄 só chamar!",
+                "Beleza 😊 qualquer coisa estou aqui!"
             ])})
 
-        # 🚚 ENTREGA
+        # 💰 PREÇO
+        if tem(msg, ["preço", "valor", "quanto custa"]):
+            return jsonify({"resposta": escolher([
+                "Posso te passar os valores 😊 qual produto você quer?",
+                "Os preços variam 😄 me fala o produto!",
+                "Me diz o que você quer que te passo o valor 😊"
+            ])})
+
+        # 📦 ENTREGA
         if tem(msg, ["entrega", "frete", "envio"]):
             return jsonify({"resposta": escolher([
                 "Enviamos pra todo o Brasil 🇧🇷😊",
@@ -156,20 +167,29 @@ def chat():
                 "Sim 😊 enviamos pra todo o país!"
             ])})
 
+        # 🛒 FINALIZAR
+        if tem(msg, ["comprar", "finalizar", "pedido"]):
+            return jsonify({"resposta": escolher([
+                f"Você pode finalizar direto no site 😊 ou chamar aqui {whatsapp}",
+                f"Pode finalizar no site ou falar comigo no Whats 😊 {whatsapp}",
+                f"Se quiser ajuda pode chamar no Whats 😊 {whatsapp}"
+            ])})
+
         # 📞 WHATS
         if tem(msg, ["whatsapp", "contato"]):
             return jsonify({"resposta": f"Pode chamar aqui 😊 {whatsapp}"})
 
-        # 💬 FALLBACK INTELIGENTE
+        # 💬 FALLBACK TOP
         return jsonify({"resposta": escolher([
             "Posso te ajudar com fitas, cola ou acrílico 😊",
             "Quer recomendação ou tá procurando algo específico? 😄",
             "Me fala o que você precisa 😊",
-            "Posso te sugerir produtos se quiser 😍"
+            "Posso te sugerir produtos se quiser 😍",
+            "Tá procurando material ou quer ideias? 😊"
         ])})
 
     except:
-        return jsonify({"resposta": "Deu um errinho aqui 😅 pode tentar de novo?"})
+        return jsonify({"resposta": "Deu um errinho 😅 pode tentar de novo?"})
 
 
 if __name__ == "__main__":
